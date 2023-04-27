@@ -3,6 +3,7 @@ require("express-async-errors");
 const config = require("./utils/config");
 const app = express();
 const mongoose = require("mongoose");
+const path = require("path");
 
 const blogsRouter = require("./controllers/blogs");
 const usersRouter = require("./controllers/users");
@@ -43,7 +44,7 @@ app.use(cors());
 app.use(express.json());
 app.use(middleware.requestLogger);
 
-app.use("/", express.static("build/"));
+app.use(express.static("build"));
 
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);
@@ -55,6 +56,16 @@ app.use(
     middleware.userExtractor,
     blogsRouter
 );
+
+app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "build", "index.html"), (err) => {
+        if (err) {
+            console.log(err);
+        }
+    });
+});
+
+console.log(__dirname);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
